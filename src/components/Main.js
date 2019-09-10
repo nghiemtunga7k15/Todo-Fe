@@ -4,34 +4,31 @@ import do_actions from './../action';
 import './../App.css';
 import API from './../API';
 import axios from 'axios';
+import { createStore } from 'redux';
+import myReducer from './../reducer';
+import { Route, Link, BrowserRouter as Router, Switch } from 'react-router-dom';
 
+const store = createStore(myReducer);
 
-class Main  extends Component {
+class Main  extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
         listTodo:[],
-        detail:{},
+        // detail:'',
       }
       this.keyPressed = this.keyPressed.bind(this);
-
     }
-   
-    componentDidMount() {
-    this.getListTodo();
+    
+    componentWillMount() {
+        this.initListTodo();
     }
-    componentWillUpdate(){
-     // this.initDetail();
-     this.getListTodo();
+    componentDidUpdate(){
+        
+    }   
+    initListTodo(){
+      this.setState({listTodo:this.props.todo})
     }
-    // initDetail(){
-    //   let self = this;
-    //   setTimeout(function(){
-    //       self.setState({
-    //           detail : self.props.detailTodo
-    //       })
-    //   },1000)
-    // }        
     getListTodo(){
           let self = this;
           let params = {
@@ -45,6 +42,19 @@ class Main  extends Component {
           .catch(err =>{
                return console.log(err);
           })
+
+    }
+    getListTodoByPromise(params){
+      return new Promise((reslove,reject)=>{
+          let ApiListTodo =  API('get' ,'http://localhost:3001/api/list' , params);
+          ApiListTodo
+          .then(suc=>{
+                  return reslove(suc.data.data);
+          })
+          .catch(err =>{
+               return reject(err);
+          })
+      })
     }
     keyPressed(event) {
        let self = this;
@@ -90,47 +100,47 @@ class Main  extends Component {
             </li>
         )
       })
-     
     }
-    // demo(){
-    //   let params = { 
-    //   }
-    //   let ApiAddTask =  API('delete' ,'http://localhost:3001/api/delete/126' , params);
-    //   ApiAddTask
-    //     .then(suc=>{
-    //       console.log('ok');
-    //     })
-    //     .catch(e =>{
-    //       console.log('not ok')
-    //     })
-    // }
-    demoIfElse =() =>{
-      return <h1>True</h1>
-    } 
-    demoIfElse2 =() =>{
-      return <h1>False</h1>
-    } 
+    renderList = () => {
+       return  this.state.listTodo.map(function(player , index) {
+        return (
+            <li key={index} >{player.name}</li>
+          )
+        })
+    }
+    searchName = (event)=>{
+      let val = event.target.value;
+      let list = this.state.listTodo;
+     let search =  list.filter(obj=>{
+
+          let demo = obj.name.indexOf(val);
+          if(demo != -1 && val !=''){
+            return obj;
+          }
+      })
+     console.log(search)
+      if(search.length <= 0){
+          search = list;
+      } 
+      // list.push({name:val,age:20});                                                                                                                                                                                                        
+      let valueInput= event.target.value;
+      this.setState({
+        listTodo:search
+      })
+    }
     render(){
-      let button = true;
-      if(button == true){
-          button = this.demoIfElse();
-      }else{
-        button = this.demoIfElse2()
-      }
+      
       return (
         <div className="container">
-             <h2 className="text">Todo-App</h2>
+          {/* <h2 className="text">Todo-App</h2>
              <input className="input-todo" onKeyPress={this.keyPressed} ref={el => this.inputTitle = el} /> 
                  <nav>
                     <ul>
                         {this.renderListTodo()}
                     </ul>
-                 </nav>
-
-             <div>
-              {button}
-                 
-             </div>
+                 </nav>   */}
+                  <input type="text" onKeyUp={this.searchName} ref />
+                  {this.renderList()}  
         </div>
       );
     }

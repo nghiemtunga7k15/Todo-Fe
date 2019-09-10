@@ -1,4 +1,10 @@
-const listTodo = [];
+const listTodo = [
+	{name:'Tung' , age:21},
+	{name:'Duy' , age:21},
+	{name:'Trong' , age:21},
+	{name:'Son' , age:21},
+	{name:'Hai' , age:21},
+];
 
 
 const todo = (state = listTodo , action)=>{
